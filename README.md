@@ -2,6 +2,10 @@
 
 This is an iOS app which allows user to tag his/her current location, select category to log this place, take photo or choose an existing photo to display in tableview. 
 
+Animation:
+
+![mylocations](https://cloud.githubusercontent.com/assets/10201379/19497386/e8958a0c-9540-11e6-84b4-45773fc5879d.gif)
+
 Screenshots:
 
 ![screen shot 2016-10-17 at 10 45 14 pm](https://cloud.githubusercontent.com/assets/10201379/19471856/ce695d96-94d9-11e6-859a-744a67743825.png)
