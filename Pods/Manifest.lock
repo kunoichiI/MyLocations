@@ -1,0 +1,12 @@
+PODS:
+  - LaunchScreenViewController (0.0.5)
+
+DEPENDENCIES:
+  - LaunchScreenViewController
+
+SPEC CHECKSUMS:
+  LaunchScreenViewController: 47be6410d1161d63586c9fa539d3901cfd8354a4
+
+PODFILE CHECKSUM: 1f5b55c4e72a4d59374076faf0df2056bc14edba
+
+COCOAPODS: 1.0.1
