@@ -11,6 +11,7 @@
 
 
 @interface CurrentLocationViewController : UIViewController <CLLocationManagerDelegate>
+
 @property (nonatomic, strong) NSManagedObjectContext *managedObjectContext;
 @property (nonatomic, weak) IBOutlet UILabel *messageLabel;
 @property (nonatomic, weak) IBOutlet UILabel *latitudeLabel;

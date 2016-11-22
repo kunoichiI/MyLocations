@@ -9,5 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @interface UIImage (Resize)
--(UIImage *)resizedImageWithBounds:(CGSize)bounds;
+
+- (UIImage *)resizedImageWithBounds:(CGSize)bounds;
 @end

@@ -254,6 +254,7 @@
 
 
 #pragma mark - UITableViewDelegate 
+
 -(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     cell.backgroundColor = [UIColor blackColor];
@@ -319,6 +320,7 @@
 }
 
 #pragma mark - Photo Handling
+
 -(void)takePhoto
 {
     _imagePicker = [[UIImagePickerController alloc] init];
@@ -341,8 +343,17 @@
 -(void)showPhotoMenu
 {
     if ([UIImagePickerController  isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
-        _actionSheet= [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Take Photo", @"Choose From Library", nil];
-        [_actionSheet showInView:self.view];
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"Select image or take photo" preferredStyle:UIAlertControllerStyleActionSheet];
+        [alert addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            [self dismissViewControllerAnimated:YES completion:^{ }];
+        }]];
+        [alert addAction:[UIAlertAction actionWithTitle:@"Take Photo" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [self dismissViewControllerAnimated:YES completion:^{ }];
+        }]];
+        [alert addAction:[UIAlertAction actionWithTitle:@"Choose From Library" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [self dismissViewControllerAnimated:YES completion:^{ }];
+        }]];
+        [self presentViewController:alert animated:YES completion:nil];
     } else {
         [self choosePhotoFromLibrary];
     }
@@ -377,16 +388,7 @@
     _imagePicker = nil;
 }
 
-#pragma mark - UIActionSheetDelegate
--(void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    if (buttonIndex == 0) {
-        [self takePhoto];
-    } else if (buttonIndex == 1){
-        [self choosePhotoFromLibrary];
-    }
-    _actionSheet = nil;
-}
+
 
 
 @end

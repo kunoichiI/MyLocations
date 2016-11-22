@@ -22,7 +22,7 @@
     NSArray *_locations;
 }
 
--(id)initWithCoder:(NSCoder*)aDecoder
+- (id)initWithCoder:(NSCoder*)aDecoder
 {
     if ((self = [super initWithCoder:aDecoder])) {
            [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(contextDidChange:) name:NSManagedObjectContextObjectsDidChangeNotification object:self.managedObjectContext];
@@ -30,33 +30,33 @@
     return self;
 }
 
--(void)contextDidChange:(NSNotification *)notification
+- (void)contextDidChange:(NSNotification *)notification
 {
     if ([self isViewLoaded]) {
         [self updateLocations];
     }
 }
 
--(void)dealloc
+- (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 
--(IBAction)showUser
+- (IBAction)showUser
 {
     MKCoordinateRegion region  = MKCoordinateRegionMakeWithDistance(self.mapView.userLocation.coordinate, 1000, 1000);
     
     [self.mapView setRegion:[self.mapView regionThatFits:region] animated:YES];
 }
 
--(IBAction)showLocation
+- (IBAction)showLocation
 {
     MKCoordinateRegion region = [self regionForAnnotations: _locations];
     [self.mapView setRegion:region animated:YES];
 }
 
--(MKCoordinateRegion)regionForAnnotations:(NSArray *)annotations
+- (MKCoordinateRegion)regionForAnnotations:(NSArray *)annotations
 {
     MKCoordinateRegion region;
     if ([annotations count] > 0) {
@@ -90,7 +90,7 @@
     return [self.mapView regionThatFits:region];
 }
 
--(void)updateLocations
+- (void)updateLocations
 {
     NSEntityDescription *entity = [NSEntityDescription entityForName: @"Location" inManagedObjectContext:self.managedObjectContext];
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
@@ -111,7 +111,7 @@
     [self.mapView addAnnotations:_locations];
 }
 
--(void)viewDidLoad
+- (void)viewDidLoad
 {
     [super viewDidLoad];
     [self updateLocations];
@@ -122,7 +122,8 @@
 }
 
 #pragma mark - MKMapViewDelegate
--(MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
+
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
 {
    
     if ([annotation isKindOfClass:[Location class]]) {
@@ -133,11 +134,10 @@
         if (annotationView == nil) {
             annotationView = [[MKPinAnnotationView alloc]initWithAnnotation:annotation reuseIdentifier:identifier];
             
-            
             annotationView.enabled = YES;
             annotationView.canShowCallout = YES;
             annotationView.animatesDrop = NO;
-            annotationView.pinColor = MKPinAnnotationColorGreen;
+            annotationView.pinTintColor = [MKPinAnnotationView greenPinColor];
             annotationView.tintColor = [UIColor colorWithWhite:0.0f alpha:0.5f];
             
             UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
@@ -154,12 +154,12 @@
     return nil;
 }
 
--(void)showLocationDetails: (UIButton *)button
+- (void)showLocationDetails: (UIButton *)button
 {
     [self performSegueWithIdentifier:@"EditLocation" sender:button];
 }
 
--(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
     if ([segue.identifier isEqualToString:@"EditLocation"]) {
         UINavigationController *navigationController = segue.destinationViewController;
@@ -173,6 +173,7 @@
 }
 
 #pragma mark - UINavigationBarDelegate
+
 -(UIBarPosition) positionForBar:(id<UIBarPositioning>)bar
 {
     return UIBarPositionTopAttached;

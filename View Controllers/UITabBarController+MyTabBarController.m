@@ -9,6 +9,7 @@
 #import "UITabBarController+MyTabBarController.h"
 
 @implementation UITabBarController (MyTabBarController)
+
 - (UIStatusBarStyle) preferredStatusBarStyle
 {
     return UIStatusBarStyleLightContent;
@@ -18,4 +19,5 @@
 {
     return nil;
 }
+
 @end

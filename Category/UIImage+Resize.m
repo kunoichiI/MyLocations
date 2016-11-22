@@ -9,7 +9,8 @@
 #import "UIImage+Resize.h"
 
 @implementation UIImage (Resize)
--(UIImage *)resizedImageWithBounds:(CGSize)bounds
+
+- (UIImage *)resizedImageWithBounds:(CGSize)bounds
 {
     CGFloat horizonalRatio = bounds.width/self.size.width;
     CGFloat verticalRatio = bounds.height/self.size.height;

@@ -19,12 +19,12 @@
 @dynamic placemark;
 @dynamic photoId;
 
--(CLLocationCoordinate2D)coordinate
+- (CLLocationCoordinate2D)coordinate
 {
     return CLLocationCoordinate2DMake([self.latitude doubleValue], [self.longitude doubleValue]);
 }
 
--(NSString *)title
+- (NSString *)title
 {
     if ([self.locationDescription length] > 0) {
         return self.locationDescription;
@@ -33,30 +33,30 @@
     }
 }
 
--(NSString *)subtitle
+- (NSString *)subtitle
 {
     return self.category;
 }
 
--(BOOL)hasPhoto
+- (BOOL)hasPhoto
 {
     return (self.photoId != nil) && ([self.photoId integerValue] != -1);
 }
 
--(NSString *)documentsDirectory
+- (NSString *)documentsDirectory
 {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths lastObject];
     return documentsDirectory;
 }
 
--(NSString *)photoPath
+- (NSString *)photoPath
 {
-    NSString *fileName = [NSString stringWithFormat:@"Photo - %d.jpg", [self.photoId integerValue]];
+    NSString *fileName = [NSString stringWithFormat:@"Photo - %ld.jpg", (long)[self.photoId integerValue]];
     return [[self documentsDirectory]stringByAppendingPathComponent:fileName];
 }
 
--(UIImage *)photoImage
+- (UIImage *)photoImage
 {
     NSAssert(self.photoId!= nil, @"No photo ID set");
     NSAssert([self.photoId integerValue] != -1, @"Photo ID is -1");
@@ -64,7 +64,7 @@
     return [UIImage imageWithContentsOfFile:[self photoPath]];
 }
 
-+(NSInteger)nextPhotoId
++ (NSInteger)nextPhotoId
 {
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     NSInteger photoId = [defaults integerForKey:@"PhotoID"];
@@ -73,7 +73,7 @@
     return photoId;
 }
 
--(void)removePhotoFile
+- (void)removePhotoFile
 {
     NSString *path = [self photoPath];
     NSFileManager *fileManager = [NSFileManager defaultManager];

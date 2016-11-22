@@ -26,11 +26,15 @@ extern NSString *const ManagedObjectContextSaveDidFailNotification;
 @property (nonatomic, retain) NSNumber * longitude;
 @property (nonatomic, retain) CLPlacemark* placemark;
 @property (nonatomic, retain) NSNumber *photoId;
-+(NSInteger) nextPhotoId;
 
--(BOOL)hasPhoto;
--(NSString*) photoPath;
--(UIImage *)photoImage;
--(void)removePhotoFile;
+- (CLLocationCoordinate2D)coordinate;
+- (NSString *)title;
+- (NSString *)subtitle;
+- (BOOL)hasPhoto;
+- (NSString *)documentsDirectory;
+- (NSString*) photoPath;
+- (UIImage *)photoImage;
++ (NSInteger) nextPhotoId;
+- (void)removePhotoFile;
 
 @end

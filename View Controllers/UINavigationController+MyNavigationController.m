@@ -9,8 +9,10 @@
 #import "UINavigationController+MyNavigationController.h"
 
 @implementation UINavigationController (MyNavigationController)
+
 - (UIStatusBarStyle) preferredStatusBarStyle
 {
     return UIStatusBarStyleLightContent;
 }
+
 @end
