@@ -12,8 +12,6 @@
 #import "Location.h"
 #import "NSMutableString+AddText.h"
 
-
-
 @interface LocationDetailsViewController () <UITextViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIActionSheetDelegate>
 
 @property (nonatomic, weak) IBOutlet UITextView *descriptionTextView;
@@ -24,59 +22,28 @@
 @property (nonatomic, weak) IBOutlet UILabel *dateLabel;
 @property (nonatomic, weak) IBOutlet UIImageView *imageView;
 @property (nonatomic, weak) IBOutlet UILabel *photoLabel;
-
+@property (nonatomic) UIImage *image;
+@property (nonatomic) NSDate *date;
+@property (nonatomic) NSString *categoryName;
+@property (nonatomic) NSString *descriptionText;
+@property (nonatomic) UIImagePickerController *imagePicker;
 
 @end
 
 @implementation LocationDetailsViewController
-{
-    NSString *_descriptionText;
-    NSString *_categoryName;
-    NSDate *_date;
-    UIImage *_image;
-    UIActionSheet *_actionSheet;
-    UIImagePickerController *_imagePicker;
-}
 
--(void)showImage:(UIImage *)image
-{
-    self.imageView.image = image;
-    self.imageView.hidden = NO;
-    self.imageView.frame = CGRectMake(10, 10, 260, 260);
-    self.photoLabel.hidden = YES;
-    
-}
+#pragma mark - View Controller Life Cycle
 
 -(id)initWithCoder:(NSCoder *)aDecoder
 {
     if ((self = [super initWithCoder:aDecoder])) {
-        _descriptionText = @"";
-        _categoryName = @"No Category";
-        _date = [NSDate date];
+        self.descriptionText = @"";
+        self.categoryName = @"No Category";
+        self.date = [NSDate date];
         
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(applicationDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
     }
     return self;
-}
-
--(void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
--(void)applicationDidEnterBackground
-{
-    if (_imagePicker != nil) {
-        [self dismissViewControllerAnimated:NO completion:nil];
-        _imagePicker = nil;
-    }
-    
-    if (_actionSheet != nil) {
-        [_actionSheet dismissWithClickedButtonIndex:_actionSheet.cancelButtonIndex animated:NO];
-        _actionSheet = nil;
-    }
-    
-    [self.descriptionTextView resignFirstResponder];
 }
 
 - (void)viewDidLoad {
@@ -92,8 +59,8 @@
         }
     }
     
-    self.descriptionTextView.text = _descriptionText;
-    self.categoryLabel.text = _categoryName;
+    self.descriptionTextView.text = self.descriptionText;
+    self.categoryLabel.text = self.categoryName;
     
     self.latitudeLabel.text = [NSString stringWithFormat:@"%.8f", self.coordinate.latitude];
     self.longitudeLabel.text = [NSString stringWithFormat:@"%.8f", self.coordinate.longitude];
@@ -103,7 +70,7 @@
     } else {
         self.addressLabel.text = @"No Address Found";
     }
-    self.dateLabel.text = [self formatDate: _date];
+    self.dateLabel.text = [self formatDate: self.date];
     
     UITapGestureRecognizer *gestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hideKeyboard:)];
     gestureRecognizer.cancelsTouchesInView = NO;
@@ -122,15 +89,38 @@
     self.addressLabel.highlightedTextColor = self.addressLabel.textColor;
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
--(void)setLocationToEdit:(Location *)newLocationToEdit
+- (void)applicationDidEnterBackground
+{
+    if (self.imagePicker != nil) {
+        [self dismissViewControllerAnimated:NO completion:nil];
+        self.imagePicker = nil;
+    }
+    [self.descriptionTextView resignFirstResponder];
+}
+
+
+- (void)showImage:(UIImage *)image
+{
+    self.imageView.image = image;
+    self.imageView.hidden = NO;
+    self.imageView.frame = CGRectMake(10, 10, 260, 260);
+    self.photoLabel.hidden = YES;
+    
+}
+
+- (void)setLocationToEdit:(Location *)newLocationToEdit
 {
     if (_locationToEdit != newLocationToEdit) {
         _locationToEdit = newLocationToEdit;
         
-        _descriptionText = _locationToEdit.locationDescription;
-        _categoryName = _locationToEdit.category;
-        _date = _locationToEdit.date;
+        self.descriptionText = _locationToEdit.locationDescription;
+        self.categoryName = _locationToEdit.category;
+        self.date = _locationToEdit.date;
         
         self.coordinate = CLLocationCoordinate2DMake([_locationToEdit.latitude doubleValue], [_locationToEdit.longitude doubleValue]);
         
@@ -138,19 +128,17 @@
     }
 }
 
--(void)hideKeyboard:(UIGestureRecognizer *)gestureRecognizer
+- (void)hideKeyboard:(UIGestureRecognizer *)gestureRecognizer
 {
     CGPoint point = [gestureRecognizer locationInView:self.tableView];
-    
     NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:point];
-    
     if (indexPath != nil && indexPath.section == 0 &&indexPath.row == 0) {
         return;
     }
     [self.descriptionTextView resignFirstResponder];
 }
 
--(NSString *)stringFromPlacemark:(CLPlacemark *)placemark
+- (NSString *)stringFromPlacemark:(CLPlacemark *)placemark
 {
     NSMutableString *line = [NSMutableString stringWithCapacity:100];
     [line addText:placemark.subThoroughfare withSeparator:@" "];
@@ -164,7 +152,7 @@
     return line;
 }
 
--(NSString *) formatDate:(NSDate *)theDate
+- (NSString *) formatDate:(NSDate *)theDate
 {
     static NSDateFormatter *formatter = nil;
     if (formatter == nil) {
@@ -180,7 +168,7 @@
     // Dispose of any resources that can be recreated.
 }
 
--(IBAction)done:(id)sender
+- (IBAction)done:(id)sender
 {
     HudView *hudView = [HudView hudInView:self.navigationController.view animated:YES];
     
@@ -194,107 +182,65 @@
         location.photoId = @ -1;
     }
     
-    
-    location.locationDescription = _descriptionText;
-    location.category = _categoryName;
+    location.locationDescription = self.descriptionText;
+    location.category = self.categoryName;
     location.latitude = @(self.coordinate.latitude);
     location.longitude = @(self.coordinate.longitude);
-    location.date = _date;
+    location.date = self.date;
     location.placemark = self.placemark;
     
-    if (_image != nil) {
+    if (self.image != nil) {
         //NSLog(@"yo yo yo");
         if (![location hasPhoto]) {
             location.photoId = @([Location nextPhotoId]);
         }
         
-        //NSLog(@"okie..."); // okie is not reached..
-        
-        NSData *data  = UIImageJPEGRepresentation(_image, 0.5);
+        //NSLog(@"okie...");
+        NSData *data  = UIImageJPEGRepresentation(self.image, 0.5);
         NSError *error;
         if (![data writeToFile:[location photoPath] options:NSDataWritingAtomic error:&error]) {
             NSLog(@"Error writing file: %@", error);
         }
     }
     
-    
     NSError *error;
     if (![self.managedObjectContext save:&error]) {
         NSLog(@"*** Fatal error in %s: %d\n%@\n%@", __FILE__, __LINE__, error, [error userInfo]);
         [[NSNotificationCenter defaultCenter]postNotificationName:ManagedObjectContextSaveDidFailNotification object:error];
     }
-
     [self performSelector:@selector(closeScreen) withObject:nil afterDelay:0.6];
 }
 
--(IBAction)cancel:(id)sender
+- (IBAction)cancel:(id)sender
 {
     [self closeScreen];
 }
 
--(void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([segue.identifier isEqualToString:@"PickCategory"]) {
-        CategoryPickerTableViewController *controller = segue.destinationViewController;
-        controller.selectedCategoryName = _categoryName;
-    }
-}
-
--(void)closeScreen
+- (void)closeScreen
 {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
--(IBAction)categoryPickerDidPickCategory:(UIStoryboardSegue *)segue
+- (IBAction)categoryPickerDidPickCategory:(UIStoryboardSegue *)segue
 {
     CategoryPickerTableViewController *viewController = segue.sourceViewController;
-    _categoryName = viewController.selectedCategoryName;
-    self.categoryLabel.text = _categoryName;
+    self.categoryName = viewController.selectedCategoryName;
+    self.categoryLabel.text = self.categoryName;
 }
 
+#pragma mark - Segue
 
-#pragma mark - UITableViewDelegate 
-
--(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    cell.backgroundColor = [UIColor blackColor];
-    cell.textLabel.textColor = [UIColor whiteColor];
-    cell.textLabel.highlightedTextColor = cell.textLabel.textColor;
-    cell.detailTextLabel.textColor = [UIColor colorWithWhite:1.0f alpha:0.4f];
-    cell.detailTextLabel.highlightedTextColor = cell.detailTextLabel.textColor;
-    
-    UIView *selectionView = [[UIView alloc] initWithFrame:CGRectZero];
-    selectionView.backgroundColor = [UIColor colorWithWhite:1.0f alpha:0.2f];
-    cell.selectedBackgroundView = selectionView;
-    
-    if (indexPath.row == 2) {
-        UILabel *addressLabel = (UILabel *)[cell viewWithTag:100];
-        addressLabel.textColor = [UIColor whiteColor];
-        addressLabel.highlightedTextColor = addressLabel.textColor;
+    if ([segue.identifier isEqualToString:@"PickCategory"]) {
+        CategoryPickerTableViewController *controller = segue.destinationViewController;
+        controller.selectedCategoryName = self.categoryName;
     }
 }
 
--(NSIndexPath *) tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (indexPath.section == 0 || indexPath.section == 1) {
-        return indexPath;
-    }else {
-        return nil;
-    }
-}
+#pragma mark - UITableViewDataSource
 
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (indexPath.section == 0 && indexPath.row == 0) {
-        [self.descriptionTextView becomeFirstResponder];
-    }
-    else if (indexPath.section == 1 && indexPath.row == 0) {
-        [tableView deselectRowAtIndexPath:indexPath animated:YES];
-        [self showPhotoMenu];
-    }
-}
-
--(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     if (indexPath.section == 0 && indexPath.row == 0) {
         return 88;
@@ -319,28 +265,70 @@
     }
 }
 
+- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    cell.backgroundColor = [UIColor blackColor];
+    cell.textLabel.textColor = [UIColor whiteColor];
+    cell.textLabel.highlightedTextColor = cell.textLabel.textColor;
+    cell.detailTextLabel.textColor = [UIColor colorWithWhite:1.0f alpha:0.4f];
+    cell.detailTextLabel.highlightedTextColor = cell.detailTextLabel.textColor;
+    
+    UIView *selectionView = [[UIView alloc] initWithFrame:CGRectZero];
+    selectionView.backgroundColor = [UIColor colorWithWhite:1.0f alpha:0.2f];
+    cell.selectedBackgroundView = selectionView;
+    
+    if (indexPath.row == 2) {
+        UILabel *addressLabel = (UILabel *)[cell viewWithTag:100];
+        addressLabel.textColor = [UIColor whiteColor];
+        addressLabel.highlightedTextColor = addressLabel.textColor;
+    }
+}
+
+#pragma mark - UITableViewDelegate
+
+- (NSIndexPath *) tableView:(UITableView *)tableView willSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.section == 0 || indexPath.section == 1) {
+        return indexPath;
+    }else {
+        return nil;
+    }
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.section == 0 && indexPath.row == 0) {
+        [self.descriptionTextView becomeFirstResponder];
+    }
+    else if (indexPath.section == 1 && indexPath.row == 0) {
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+        [self showPhotoMenu];
+    }
+}
+
+
 #pragma mark - Photo Handling
 
--(void)takePhoto
+- (void)takePhoto
 {
-    _imagePicker = [[UIImagePickerController alloc] init];
-    _imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
-    _imagePicker.delegate = self;
-    _imagePicker.allowsEditing = YES;
-    _imagePicker.view.tintColor = self.view.tintColor;
-    [self presentViewController:_imagePicker animated:YES completion:nil];
+    self.imagePicker = [[UIImagePickerController alloc] init];
+    self.imagePicker.sourceType = UIImagePickerControllerSourceTypeCamera;
+    self.imagePicker.delegate = self;
+    self.imagePicker.allowsEditing = YES;
+    self.imagePicker.view.tintColor = self.view.tintColor;
+    [self presentViewController:self.imagePicker animated:YES completion:nil];
 }
 
--(void)choosePhotoFromLibrary
+- (void)choosePhotoFromLibrary
 {
-    _imagePicker= [[UIImagePickerController alloc] init];
-    _imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    _imagePicker.delegate = self;
-    _imagePicker.allowsEditing = NO;
-    [self presentViewController:_imagePicker animated:YES completion:nil];
+    self.imagePicker= [[UIImagePickerController alloc] init];
+    self.imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    self.imagePicker.delegate = self;
+    self.imagePicker.allowsEditing = NO;
+    [self presentViewController:self.imagePicker animated:YES completion:nil];
 }
 
--(void)showPhotoMenu
+- (void)showPhotoMenu
 {
     if ([UIImagePickerController  isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"Select image or take photo" preferredStyle:UIAlertControllerStyleActionSheet];
@@ -359,33 +347,34 @@
     }
 }
 
-
-
 #pragma  mark - UITextViewDelegate
--(BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text
 {
-    _descriptionText = [textView.text stringByReplacingCharactersInRange:range withString:text];
+    self.descriptionText = [textView.text stringByReplacingCharactersInRange:range withString:text];
     return YES;
 }
 
--(void)textViewDidEndEditing:(UITextView*)textView
+- (void)textViewDidEndEditing:(UITextView*)textView
 {
-    _descriptionText = textView.text;
+    self.descriptionText = textView.text;
 }
 
 #pragma mark - UIImagePickerControllerDelegate
--(void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
-    _image = info[UIImagePickerControllerOriginalImage];
-    [self showImage:_image];
+    self.image = info[UIImagePickerControllerOriginalImage];
+    [self showImage:self.image];
     [self.tableView reloadData];
     [self dismissViewControllerAnimated:YES completion:nil];
-    _imagePicker = nil;
+    self.imagePicker = nil;
 }
--(void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
     [self dismissViewControllerAnimated:YES completion:nil];
-    _imagePicker = nil;
+    self.imagePicker = nil;
 }
 
 

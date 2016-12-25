@@ -24,12 +24,6 @@ NSString *const ManagedObjectContextSaveDidFailNotification = @"ManagedObjectCon
 @end
 
 @implementation AppDelegate
-- (void)customizeAppearance
-{
-    [[UINavigationBar appearance] setBarTintColor:[UIColor blackColor]];
-    [[UINavigationBar appearance]setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor whiteColor],}];
-    [[UITabBar appearance]setBarTintColor:[UIColor blackColor]];
-}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -37,29 +31,17 @@ NSString *const ManagedObjectContextSaveDidFailNotification = @"ManagedObjectCon
     
     UITabBarController *tabBarController = (UITabBarController *)self.window.rootViewController;
     MapViewController *mapViewController = (MapViewController *)tabBarController.viewControllers[2];
-    mapViewController.managedObjectContext = self.managedObjectContext;
     UINavigationController *navigationController = (UINavigationController *)tabBarController.viewControllers[1];
     LocationsViewController *locationsViewController = (LocationsViewController *)navigationController.viewControllers[0];
-    
-    locationsViewController.managedObjectContext = self.managedObjectContext;
-    
     CurrentLocationViewController *currentLocationViewController = (CurrentLocationViewController *)tabBarController.viewControllers[0];
     
+    mapViewController.managedObjectContext = self.managedObjectContext;
+    locationsViewController.managedObjectContext = self.managedObjectContext;
     currentLocationViewController.managedObjectContext = self.managedObjectContext;
     [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(fatalCoreDataError:) name:ManagedObjectContextSaveDidFailNotification object:nil];
     return YES;
 
 }
-
-- (void)fatalCoreDataError:(NSNotification *)notification
-{
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Internal Error" message:@"There was a fatal error in the app and it cannot continue \n\nPress OK to terminate the app" preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction *action = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [alert dismissViewControllerAnimated:YES completion:nil];}];
-    [alert addAction:action];
-}
-
-
 
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
@@ -83,8 +65,26 @@ NSString *const ManagedObjectContextSaveDidFailNotification = @"ManagedObjectCon
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 
-#pragma mark - Core Data
--(NSManagedObjectModel *)managedObjectModel
+#pragma mark - Helper Method
+
+- (void)customizeAppearance
+{
+    [[UINavigationBar appearance] setBarTintColor:[UIColor blackColor]];
+    [[UINavigationBar appearance]setTitleTextAttributes:@{NSForegroundColorAttributeName:[UIColor whiteColor],}];
+    [[UITabBar appearance]setBarTintColor:[UIColor blackColor]];
+}
+
+- (void)fatalCoreDataError:(NSNotification *)notification
+{
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Internal Error" message:@"There was a fatal error in the app and it cannot continue \n\nPress OK to terminate the app" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [alert dismissViewControllerAnimated:YES completion:nil];}];
+    [alert addAction:action];
+}
+
+#pragma mark - Core Data Lazy Loading
+
+- (NSManagedObjectModel *)managedObjectModel
 {
     if (_managedObjectModel == nil) {
         NSString *modelPath = [[NSBundle mainBundle]pathForResource:@"DataModel" ofType:@"momd"];
@@ -94,7 +94,7 @@ NSString *const ManagedObjectContextSaveDidFailNotification = @"ManagedObjectCon
     return  _managedObjectModel;
 }
 
--(NSString *)documentsDirectory
+- (NSString *)documentsDirectory
 {
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) ;
     NSString *documentsDirectory = [paths lastObject];
@@ -106,7 +106,7 @@ NSString *const ManagedObjectContextSaveDidFailNotification = @"ManagedObjectCon
     return [[self documentsDirectory]stringByAppendingPathComponent:@"DataStore.sqlite"];
 }
 
--(NSPersistentStoreCoordinator *)persistentStoreCoordinator
+- (NSPersistentStoreCoordinator *)persistentStoreCoordinator
 {
     if (_persistentStoreCoordinator == nil) {
         NSURL *storeURL = [NSURL fileURLWithPath:[self dataStorePath]];

@@ -31,6 +31,7 @@
     SystemSoundID _soundID;
 }
 
+
 - (void)updateLabels
 {
     if (self.location != nil) {

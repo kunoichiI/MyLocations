@@ -11,6 +11,7 @@
 #import <CoreLocation/CoreLocation.h>
 
 extern NSString *const ManagedObjectContextSaveDidFailNotification;
+
 #define FATAL_CORE_DATA_ERROR(__error__)\
     NSLog(@"*** Fatal error in %s: %d\n%@\n%@", \
     __FILE__, __LINE__, error, [error userInfo]);\

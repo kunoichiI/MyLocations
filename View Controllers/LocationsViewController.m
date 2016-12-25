@@ -12,36 +12,15 @@
 #import "UIImage+Resize.h"
 #import "NSMutableString+AddText.h"
 
-
-
 @interface LocationsViewController() <NSFetchedResultsControllerDelegate>
+
+@property (nonatomic) NSFetchedResultsController *fetchedResultsController;
 
 @end
 
 @implementation LocationsViewController
-{
-    NSFetchedResultsController *_fetchedResultsController;
-}
 
-- (NSFetchedResultsController *)fetchedResultsController
-{
-    if (_fetchedResultsController == nil) {
-        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Location" inManagedObjectContext:self.managedObjectContext];
-        [fetchRequest setEntity:entity];
-        
-        NSSortDescriptor *sortDescriptor1 = [NSSortDescriptor sortDescriptorWithKey:@"category" ascending:YES];
-        NSSortDescriptor *sortDescriptor2 = [NSSortDescriptor sortDescriptorWithKey:@"date" ascending:YES];
-        [fetchRequest setSortDescriptors:@[sortDescriptor1, sortDescriptor2]];
-        [fetchRequest setFetchBatchSize:20];
-        _fetchedResultsController = [[NSFetchedResultsController alloc]initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"category" cacheName:nil];
-        
-        _fetchedResultsController.delegate = self;
-    }
-    return _fetchedResultsController;
-}
-
-
+#pragma mark - View Controller Life Cycle
 
 - (void)viewDidLoad
 {
@@ -250,6 +229,25 @@
 {
     NSLog(@"*** controllerDidChangeContent");
     [self.tableView endUpdates];
+}
+
+# pragma mark - Lazy Loading
+
+- (NSFetchedResultsController *)fetchedResultsController
+{
+    if (_fetchedResultsController == nil) {
+        NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+        NSEntityDescription *entity = [NSEntityDescription entityForName:@"Location" inManagedObjectContext:self.managedObjectContext];
+        [fetchRequest setEntity:entity];
+        
+        NSSortDescriptor *sortDescriptor1 = [NSSortDescriptor sortDescriptorWithKey:@"category" ascending:YES];
+        NSSortDescriptor *sortDescriptor2 = [NSSortDescriptor sortDescriptorWithKey:@"date" ascending:YES];
+        [fetchRequest setSortDescriptors:@[sortDescriptor1, sortDescriptor2]];
+        [fetchRequest setFetchBatchSize:20];
+        _fetchedResultsController = [[NSFetchedResultsController alloc]initWithFetchRequest:fetchRequest managedObjectContext:self.managedObjectContext sectionNameKeyPath:@"category" cacheName:nil];
+        _fetchedResultsController.delegate = self;
+    }
+    return _fetchedResultsController;
 }
 
 
